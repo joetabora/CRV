@@ -1,7 +1,7 @@
 import { Report } from "@/lib/types"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Target, Lightbulb, ArrowRight, CheckCircle2, BarChart } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
 
 interface ActionableRecommendationsProps {
   report: Report
@@ -9,125 +9,120 @@ interface ActionableRecommendationsProps {
 
 export function ActionableRecommendations({ report }: ActionableRecommendationsProps) {
   const primaryRec = report.recommendations.find(r => r.priority === 'primary')
-  const secondaryRecs = report.recommendations.filter(r => r.priority === 'secondary')
+  const secondaryRecs = report.recommendations.filter(r => r.priority === 'secondary').slice(0, 3)
 
   return (
-    <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold tracking-tight">Actionable Recommendations</h2>
-        <p className="text-muted-foreground mt-1">
-          Strategic guidance for optimizing creator value
+    <div className="space-y-8">
+      {/* Section Header */}
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight">Actionable Recommendations</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Priority actions to optimize creator value
         </p>
       </div>
 
       {/* Primary Recommendation */}
       {primaryRec && (
-        <Card className="mb-8 border-primary/50 bg-primary/5">
-          <CardHeader>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge className="bg-primary text-primary-foreground">PRIORITY</Badge>
+        <Card className="border-l-4 border-l-primary">
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between mb-4">
+              <Badge className="bg-primary text-primary-foreground">Primary Recommendation</Badge>
             </div>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              {primaryRec.title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-1">What to Do</h4>
-              <p className="text-sm">{primaryRec.action}</p>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-1">Expected Impact</h4>
-              <p className="text-sm">{primaryRec.expectedImpact}</p>
+            
+            <h3 className="text-lg font-semibold mb-4">{primaryRec.title}</h3>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Action Required</p>
+                  <p className="text-sm">{primaryRec.action}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Expected Impact</p>
+                <p className="text-sm">{primaryRec.expectedImpact}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Secondary Recommendations */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Lightbulb className="h-4 w-4" />
-            Secondary Optimization Opportunities
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {secondaryRecs.map((rec) => (
-              <div key={rec.id} className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg">
-                <ArrowRight className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-                <div className="space-y-2 flex-1">
-                  <h4 className="text-sm font-medium">{rec.title}</h4>
-                  <div className="grid md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Signal: </span>
-                      <span>{rec.signal}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Action: </span>
-                      <span>{rec.action}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Impact: </span>
-                      <span>{rec.expectedImpact}</span>
-                    </div>
+      <Separator />
+
+      {/* Secondary Optimizations */}
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Secondary Optimizations</h3>
+        
+        <div className="space-y-3">
+          {secondaryRecs.map((rec, index) => (
+            <Card key={rec.id} className="border-border/50">
+              <CardContent className="pt-4 pb-4">
+                <div className="grid md:grid-cols-12 gap-4">
+                  {/* Index */}
+                  <div className="md:col-span-1 flex items-start">
+                    <span className="text-sm font-medium text-muted-foreground">{index + 1}.</span>
+                  </div>
+                  
+                  {/* Signal */}
+                  <div className="md:col-span-3">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Signal</p>
+                    <p className="text-sm">{rec.signal}</p>
+                  </div>
+                  
+                  {/* Action */}
+                  <div className="md:col-span-4">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Action</p>
+                    <p className="text-sm font-medium">{rec.action}</p>
+                  </div>
+                  
+                  {/* Impact */}
+                  <div className="md:col-span-4">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Expected Impact</p>
+                    <p className="text-sm">{rec.expectedImpact}</p>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
 
-      {/* Monetization Steps */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-base">Monetization Activation Steps</CardTitle>
-          <CardDescription>Sequential steps to increase sponsorship value</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+      <Separator />
+
+      {/* Implementation Roadmap */}
+      <div className="grid lg:grid-cols-2 gap-8">
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Activation Sequence</h3>
+          <div className="space-y-3">
             {report.monetizationSteps.map((step, index) => (
-              <div key={index} className="flex items-start gap-4">
-                <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary text-primary-foreground text-sm font-medium shrink-0">
-                  {index + 1}
+              <div key={index} className="flex gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                  <span className="text-xs font-medium">{index + 1}</span>
                 </div>
-                <p className="text-sm pt-1">{step}</p>
+                <p className="text-sm pt-0.5">{step}</p>
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Measurement Loop */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <BarChart className="h-4 w-4" />
-            Measurement & Review Loop
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">Key Metrics to Track</h4>
-            <div className="flex flex-wrap gap-2">
-              {report.measurementMetrics.map((metric, index) => (
-                <div key={index} className="flex items-center gap-1.5 text-sm bg-muted px-3 py-1.5 rounded-md">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-muted-foreground" />
-                  {metric}
-                </div>
-              ))}
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Measurement Framework</h3>
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-2">Key Metrics</p>
+              <div className="flex flex-wrap gap-2">
+                {report.measurementMetrics.slice(0, 6).map((metric, index) => (
+                  <Badge key={index} variant="outline" className="font-normal">{metric}</Badge>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-2">Review Cadence</p>
+              <p className="text-sm">{report.reviewCadence}</p>
             </div>
           </div>
-          <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-2">Review Cadence</h4>
-            <p className="text-sm">{report.reviewCadence}</p>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }
-

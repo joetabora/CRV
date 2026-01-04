@@ -1,160 +1,154 @@
 import { Report } from "@/lib/types"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 
 interface PeerBenchmarkingProps {
   report: Report
 }
 
+function getPositionLabel(percentile: number): { label: string; variant: "success" | "secondary" | "outline" } {
+  if (percentile >= 75) return { label: "Above Peers", variant: "success" }
+  if (percentile >= 50) return { label: "At Peers", variant: "secondary" }
+  return { label: "Below Peers", variant: "outline" }
+}
+
+function getOverallPosition(comparisons: Report['peerComparisons']): string {
+  const avgPercentile = comparisons.reduce((sum, c) => sum + c.percentile, 0) / comparisons.length
+  if (avgPercentile >= 75) return "a top-quartile performer"
+  if (avgPercentile >= 50) return "an average performer"
+  return "a developing performer"
+}
+
 export function PeerBenchmarking({ report }: PeerBenchmarkingProps) {
+  const overallPosition = getOverallPosition(report.peerComparisons)
+  const avgPercentile = Math.round(report.peerComparisons.reduce((sum, c) => sum + c.percentile, 0) / report.peerComparisons.length)
+
   return (
-    <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold tracking-tight">Peer Benchmarking & Relative Positioning</h2>
-        <p className="text-muted-foreground mt-1">
-          Performance comparison against similar creators in the cohort
+    <div className="space-y-8">
+      {/* Section Header */}
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight">Peer Benchmarking</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Relative positioning within comparable creator cohort
         </p>
       </div>
 
-      {/* Cohort Definition */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-base">Peer Cohort Definition</CardTitle>
-          <CardDescription>Comparison group criteria</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      {/* Cohort Definition - Compact */}
+      <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+        <div>
+          <span className="text-muted-foreground">Platform:</span>{" "}
+          <span className="font-medium">{report.peerCohort.platform}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground">Viewership:</span>{" "}
+          <span className="font-medium">{report.peerCohort.viewershipRange}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground">Content:</span>{" "}
+          <span className="font-medium">{report.peerCohort.contentType}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground">Region:</span>{" "}
+          <span className="font-medium">{report.peerCohort.geography}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground">Period:</span>{" "}
+          <span className="font-medium">{report.peerCohort.dataSource}</span>
+        </div>
+      </div>
+
+      {/* Positioning Statement */}
+      <Card className="bg-muted/50 border-none">
+        <CardContent className="pt-4 pb-4">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Platform</p>
-              <p className="text-sm font-medium">{report.peerCohort.platform}</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Positioning</p>
+              <p className="text-sm">
+                This creator profiles as <span className="font-semibold">{overallPosition}</span> relative to peers.
+              </p>
             </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Viewership</p>
-              <p className="text-sm font-medium">{report.peerCohort.viewershipRange}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Content</p>
-              <p className="text-sm font-medium">{report.peerCohort.contentType}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Geography</p>
-              <p className="text-sm font-medium">{report.peerCohort.geography}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Data</p>
-              <p className="text-sm font-medium">{report.peerCohort.dataSource}</p>
+            <div className="text-right">
+              <p className="text-3xl font-bold tabular-nums">{avgPercentile}<span className="text-lg">th</span></p>
+              <p className="text-xs text-muted-foreground">Avg Percentile</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Comparison Chart */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-base">AQV Score Comparison</CardTitle>
-          <CardDescription>Creator position relative to peer quartiles</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {report.peerComparisons.map((comparison) => (
-              <div key={comparison.metric} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{comparison.metric}</span>
-                  <span className="text-sm">
-                    <Badge variant="outline">{comparison.percentile}th percentile</Badge>
-                  </span>
-                </div>
-                <div className="relative h-8 bg-muted rounded-md overflow-hidden">
-                  {/* Quartile ranges */}
+      <Separator />
+
+      {/* Metric Comparisons - Visual */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Key Metrics vs Peers</h3>
+        
+        {report.peerComparisons.map((comparison) => {
+          const position = getPositionLabel(comparison.percentile)
+          const vsMedian = ((comparison.creatorValue - comparison.peerMedian) / comparison.peerMedian * 100).toFixed(0)
+          const isPositive = comparison.creatorValue >= comparison.peerMedian
+          
+          return (
+            <div key={comparison.metric} className="grid grid-cols-12 gap-4 items-center py-3 border-b border-border/50 last:border-0">
+              {/* Metric Name */}
+              <div className="col-span-3">
+                <p className="text-sm font-medium">{comparison.metric}</p>
+              </div>
+              
+              {/* Visual Bar */}
+              <div className="col-span-5">
+                <div className="relative h-2 bg-muted rounded-full">
+                  {/* Peer Range */}
                   <div 
-                    className="absolute h-full bg-muted-foreground/10"
+                    className="absolute h-full bg-muted-foreground/20 rounded-full"
                     style={{ 
-                      left: `${(comparison.peerLower / comparison.peerUpper) * 100 * 0.8}%`,
-                      right: `${100 - 80}%`
+                      left: `${(comparison.peerLower / comparison.peerUpper) * 100}%`,
+                      width: `${((comparison.peerUpper - comparison.peerLower) / comparison.peerUpper) * 100}%`
                     }}
                   />
-                  {/* Median marker */}
+                  {/* Creator Position */}
                   <div 
-                    className="absolute top-0 h-full w-0.5 bg-muted-foreground/40"
-                    style={{ left: `${(comparison.peerMedian / comparison.peerUpper) * 100 * 0.8}%` }}
+                    className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-white ${
+                      comparison.percentile >= 75 ? 'bg-emerald-500' : 
+                      comparison.percentile >= 50 ? 'bg-primary' : 
+                      'bg-amber-500'
+                    }`}
+                    style={{ left: `${Math.min((comparison.creatorValue / comparison.peerUpper) * 100, 100)}%` }}
                   />
-                  {/* Creator marker */}
-                  <div 
-                    className="absolute top-1 h-6 w-1.5 bg-primary rounded-sm"
-                    style={{ left: `${(comparison.creatorValue / comparison.peerUpper) * 100 * 0.8}%` }}
-                  />
-                  {/* Labels */}
-                  <div className="absolute inset-0 flex items-center justify-between px-2 text-xs">
-                    <span className="text-muted-foreground">{comparison.peerLower}</span>
-                    <span className="font-medium text-primary">{comparison.creatorValue}</span>
-                    <span className="text-muted-foreground">{comparison.peerUpper}</span>
-                  </div>
                 </div>
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Lower Quartile</span>
-                  <span>Median: {comparison.peerMedian}</span>
-                  <span>Upper Quartile</span>
+                <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                  <span>{comparison.peerLower}</span>
+                  <span>{comparison.peerUpper}</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              
+              {/* Creator Value */}
+              <div className="col-span-2 text-right">
+                <p className="text-sm font-semibold tabular-nums">{comparison.creatorValue}</p>
+                <p className={`text-xs tabular-nums ${isPositive ? 'text-emerald-600' : 'text-amber-600'}`}>
+                  {isPositive ? '+' : ''}{vsMedian}% vs median
+                </p>
+              </div>
+              
+              {/* Position Badge */}
+              <div className="col-span-2 text-right">
+                <Badge variant={position.variant} className="text-xs">
+                  {comparison.percentile}th pctl
+                </Badge>
+              </div>
+            </div>
+          )
+        })}
+      </div>
 
-      {/* Comparison Table */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-base">Key Metric Differentials</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Metric</TableHead>
-                <TableHead className="text-center">Creator</TableHead>
-                <TableHead className="text-center">Peer Median</TableHead>
-                <TableHead className="text-center">vs Median</TableHead>
-                <TableHead className="text-center">Percentile</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {report.peerComparisons.map((comparison) => {
-                const diff = ((comparison.creatorValue - comparison.peerMedian) / comparison.peerMedian * 100).toFixed(0)
-                const isPositive = comparison.creatorValue > comparison.peerMedian
-                return (
-                  <TableRow key={comparison.metric}>
-                    <TableCell className="font-medium">{comparison.metric}</TableCell>
-                    <TableCell className="text-center font-medium">{comparison.creatorValue}</TableCell>
-                    <TableCell className="text-center text-muted-foreground">{comparison.peerMedian}</TableCell>
-                    <TableCell className="text-center">
-                      <span className={isPositive ? 'text-emerald-600' : 'text-red-600'}>
-                        {isPositive ? '+' : ''}{diff}%
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant={comparison.percentile >= 75 ? 'success' : comparison.percentile >= 50 ? 'secondary' : 'outline'}>
-                        {comparison.percentile}th
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <Separator />
 
-      {/* Positioning Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Positioning Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm leading-relaxed">{report.positioningSummary}</p>
-        </CardContent>
-      </Card>
+      {/* Summary */}
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Summary</h3>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {report.positioningSummary}
+        </p>
+      </div>
     </div>
   )
 }
-
