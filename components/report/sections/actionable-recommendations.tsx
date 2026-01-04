@@ -11,108 +11,81 @@ export function ActionableRecommendations({ report }: ActionableRecommendationsP
   const secondaryRecs = report.recommendations.filter(r => r.priority === 'secondary').slice(0, 3)
 
   return (
-    <Card>
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl">Actionable Recommendations</CardTitle>
-        <p className="text-sm text-muted-foreground mt-1">
-          Priority actions to optimize creator value
-        </p>
+    <Card className="print-avoid-break">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg font-semibold">Recommendations</CardTitle>
+        <p className="text-xs text-muted-foreground">Priority actions</p>
       </CardHeader>
       
-      <CardContent className="space-y-8">
+      <CardContent className="space-y-6">
         {/* Primary Recommendation */}
         {primaryRec && (
-          <div className="bg-primary/5 border-l-4 border-l-primary rounded-lg p-6">
-            <div className="flex items-start justify-between mb-4">
-              <Badge className="bg-primary text-primary-foreground">Primary Recommendation</Badge>
-            </div>
-            
-            <h3 className="text-lg font-semibold mb-4">{primaryRec.title}</h3>
-            
-            <div className="grid md:grid-cols-2 gap-6">
+          <div className="bg-primary/5 border-l-4 border-l-primary rounded-lg p-4 print-avoid-break">
+            <Badge className="bg-primary text-primary-foreground text-[10px] mb-2">Primary</Badge>
+            <h3 className="font-semibold mb-3">{primaryRec.title}</h3>
+            <div className="grid md:grid-cols-2 gap-4 text-xs">
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Action Required</p>
-                <p className="text-sm">{primaryRec.action}</p>
+                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1">Action</p>
+                <p>{primaryRec.action}</p>
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Expected Impact</p>
-                <p className="text-sm">{primaryRec.expectedImpact}</p>
+                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1">Impact</p>
+                <p>{primaryRec.expectedImpact}</p>
               </div>
             </div>
           </div>
         )}
 
         {/* Secondary Optimizations */}
-        <div className="pt-4 border-t">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Secondary Optimizations</h3>
-          
-          <div className="bg-muted/30 rounded-lg overflow-hidden">
+        <div className="pt-4 border-t print-avoid-break">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Secondary</p>
+          <div className="bg-muted/30 rounded-lg overflow-hidden text-xs">
             {secondaryRecs.map((rec, index) => (
               <div 
                 key={rec.id} 
-                className={`p-4 ${index !== secondaryRecs.length - 1 ? 'border-b border-border/50' : ''}`}
+                className={`grid grid-cols-12 gap-3 py-3 px-3 ${index !== secondaryRecs.length - 1 ? 'border-b border-border/50' : ''}`}
               >
-                <div className="grid md:grid-cols-12 gap-4">
-                  {/* Index */}
-                  <div className="md:col-span-1 flex items-start">
-                    <span className="text-sm font-semibold text-muted-foreground">{index + 1}.</span>
-                  </div>
-                  
-                  {/* Signal */}
-                  <div className="md:col-span-3">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Signal</p>
-                    <p className="text-sm">{rec.signal}</p>
-                  </div>
-                  
-                  {/* Action */}
-                  <div className="md:col-span-4">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Action</p>
-                    <p className="text-sm font-medium">{rec.action}</p>
-                  </div>
-                  
-                  {/* Impact */}
-                  <div className="md:col-span-4">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Expected Impact</p>
-                    <p className="text-sm">{rec.expectedImpact}</p>
-                  </div>
+                <div className="col-span-1">
+                  <span className="font-semibold text-muted-foreground">{index + 1}.</span>
+                </div>
+                <div className="col-span-3">
+                  <p className="text-[10px] text-muted-foreground mb-0.5">Signal</p>
+                  <p>{rec.signal}</p>
+                </div>
+                <div className="col-span-4">
+                  <p className="text-[10px] text-muted-foreground mb-0.5">Action</p>
+                  <p className="font-medium">{rec.action}</p>
+                </div>
+                <div className="col-span-4">
+                  <p className="text-[10px] text-muted-foreground mb-0.5">Impact</p>
+                  <p>{rec.expectedImpact}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Implementation Roadmap */}
-        <div className="grid lg:grid-cols-2 gap-8 pt-4 border-t">
+        {/* Implementation */}
+        <div className="grid lg:grid-cols-2 gap-6 pt-4 border-t print-avoid-break">
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Activation Sequence</h3>
-            <div className="space-y-3">
-              {report.monetizationSteps.map((step, index) => (
-                <div key={index} className="flex gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                    <span className="text-xs font-medium">{index + 1}</span>
-                  </div>
-                  <p className="text-sm pt-0.5">{step}</p>
-                </div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Activation Steps</p>
+            <ol className="space-y-1.5 text-xs">
+              {report.monetizationSteps.slice(0, 4).map((step, index) => (
+                <li key={index} className="flex gap-2">
+                  <span className="text-muted-foreground shrink-0">{index + 1}.</span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Track</p>
+            <div className="flex flex-wrap gap-1.5">
+              {report.measurementMetrics.slice(0, 5).map((metric, index) => (
+                <Badge key={index} variant="outline" className="text-[10px] font-normal px-1.5 py-0">{metric}</Badge>
               ))}
             </div>
-          </div>
-
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Measurement Framework</h3>
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground mb-2">Key Metrics</p>
-                <div className="flex flex-wrap gap-2">
-                  {report.measurementMetrics.slice(0, 6).map((metric, index) => (
-                    <Badge key={index} variant="outline" className="font-normal">{metric}</Badge>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-xs font-medium text-muted-foreground mb-2">Review Cadence</p>
-                <p className="text-sm">{report.reviewCadence}</p>
-              </div>
-            </div>
+            <p className="text-[10px] text-muted-foreground mt-2">{report.reviewCadence}</p>
           </div>
         </div>
       </CardContent>

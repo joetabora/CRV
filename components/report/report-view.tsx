@@ -24,99 +24,68 @@ export function ReportView({ report }: ReportViewProps) {
 
   return (
     <div className="min-h-screen bg-muted/30 print:bg-white">
-      {/* Navigation Header - hidden in print */}
+      {/* Navigation - hidden in print */}
       <div className="no-print">
         <Header />
       </div>
 
-      {/* Report Header Bar */}
+      {/* Report Bar */}
       <div className="border-b bg-background sticky top-0 z-40 no-print">
-        <div className="container max-w-6xl py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-semibold">{report.creator.name}</h1>
-                <Badge variant="outline" className="font-normal">{report.creator.platform}</Badge>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Generated {format(report.createdAt, 'MMM d, yyyy')}
-              </p>
+        <div className="container max-w-5xl py-3 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="font-semibold">{report.creator.name}</h1>
+              <Badge variant="outline" className="font-normal text-xs">{report.creator.platform}</Badge>
             </div>
+            <p className="text-xs text-muted-foreground">{format(report.createdAt, 'MMM d, yyyy')}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
-              <Printer className="h-4 w-4" />
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handlePrint}>
+              <Printer className="h-3.5 w-3.5 mr-1.5" />
               Print
             </Button>
-            <Button size="sm" onClick={handlePrint} className="gap-2">
-              <Download className="h-4 w-4" />
-              Export PDF
+            <Button size="sm" onClick={handlePrint}>
+              <Download className="h-3.5 w-3.5 mr-1.5" />
+              PDF
             </Button>
           </div>
         </div>
       </div>
 
       {/* Report Content */}
-      <div className="container max-w-6xl py-10 print:py-0 print:max-w-none">
-        {/* Print Header - only visible in print */}
-        <div className="hidden print:block mb-8 pb-6 border-b">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded bg-neutral-900 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">CRV</span>
-              </div>
-              <div>
-                <p className="text-lg font-semibold">Creator Valuation Report</p>
-                <p className="text-sm text-muted-foreground">Confidential</p>
-              </div>
+      <div className="container max-w-5xl py-8 print:py-0 print:max-w-none">
+        {/* Print Header */}
+        <div className="hidden print:flex print:items-center print:justify-between print:mb-6 print:pb-4 print:border-b">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded bg-neutral-900 flex items-center justify-center">
+              <span className="text-white font-bold text-xs">CRV</span>
             </div>
-            <div className="text-right">
-              <p className="text-lg font-medium">{report.creator.name}</p>
-              <p className="text-sm text-muted-foreground">{format(report.createdAt, 'MMMM d, yyyy')}</p>
+            <div>
+              <p className="font-semibold">Creator Valuation Report</p>
+              <p className="text-xs text-muted-foreground">Confidential</p>
             </div>
+          </div>
+          <div className="text-right">
+            <p className="font-semibold">{report.creator.name}</p>
+            <p className="text-xs text-muted-foreground">{format(report.createdAt, 'MMMM d, yyyy')}</p>
           </div>
         </div>
 
-        {/* Sections with significant spacing */}
-        <div className="space-y-8 print:space-y-6">
-          {/* Executive Snapshot */}
-          <section className="print-avoid-break">
-            <ExecutiveSnapshot report={report} />
-          </section>
-
-          {/* AQV Breakdown */}
-          <section className="print-avoid-break">
-            <AQVBreakdown report={report} />
-          </section>
-
-          {/* Monetization & Revenue Potential */}
-          <section className="print-avoid-break">
-            <MonetizationPotential report={report} />
-          </section>
-
-          {/* Peer Benchmarking */}
-          <section className="print-avoid-break">
-            <PeerBenchmarking report={report} />
-          </section>
-
-          {/* Actionable Recommendations */}
-          <section className="print-avoid-break">
-            <ActionableRecommendations report={report} />
-          </section>
-
-          {/* Methodology Appendix */}
-          <section className="print-break-before">
-            <MethodologyAppendix report={report} />
-          </section>
+        {/* Sections */}
+        <div className="space-y-6 print:space-y-4">
+          <ExecutiveSnapshot report={report} />
+          <AQVBreakdown report={report} />
+          <MonetizationPotential report={report} />
+          <PeerBenchmarking report={report} />
+          <ActionableRecommendations report={report} />
+          <MethodologyAppendix report={report} />
         </div>
 
-        {/* Report Footer */}
-        <footer className="mt-12 pt-6 border-t print:mt-8">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <p>CRV – Creator Valuation Reports</p>
-            <p>Report ID: {report.id}</p>
-            <p>Confidential – Do not distribute</p>
-          </div>
+        {/* Footer */}
+        <footer className="mt-8 pt-4 border-t text-[10px] text-muted-foreground flex justify-between print:mt-6">
+          <span>CRV – Creator Valuation Reports</span>
+          <span>{report.id}</span>
+          <span>Confidential</span>
         </footer>
       </div>
     </div>

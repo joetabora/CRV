@@ -61,75 +61,61 @@
   }
 }
 
-/* Typography refinements */
-@layer utilities {
-  .tabular-nums {
-    font-variant-numeric: tabular-nums;
-  }
-}
-
-/* Print styles for PDF export */
+/* Print styles */
 @media print {
   @page {
     size: letter;
-    margin: 0.75in;
+    margin: 0.6in 0.5in;
   }
 
   body {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    font-size: 11pt;
+    font-size: 10pt;
+    line-height: 1.4;
   }
 
   .no-print {
     display: none !important;
   }
 
-  .print-break-before {
-    page-break-before: always;
-    break-before: page;
-  }
-
-  .print-break-after {
-    page-break-after: always;
-    break-after: page;
-  }
-
   .print-avoid-break {
-    page-break-inside: avoid;
-    break-inside: avoid;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
-  /* Ensure cards print with borders */
-  .border {
-    border-width: 1px !important;
+  .print-break-before {
+    page-break-before: always !important;
+    break-before: page !important;
   }
 
-  /* Ensure badges have backgrounds */
+  /* Keep headers with content */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  /* Keep lists together */
+  ul, ol {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Ensure backgrounds print */
   [class*="bg-"] {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* Reduce spacing in print */
+  /* Reset container for print */
   .container {
     max-width: 100% !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding: 0 !important;
   }
 
-  /* Ensure progress bars show */
-  .rounded-full {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-}
-
-/* Subtle animations for web */
-@media (prefers-reduced-motion: no-preference) {
-  .transition-all {
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
+  /* Ensure cards don't break */
+  [class*="rounded-lg"] {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }

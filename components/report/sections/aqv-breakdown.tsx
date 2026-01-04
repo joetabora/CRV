@@ -20,58 +20,45 @@ function getScoreLabel(score: number): { label: string; variant: "success" | "se
 
 export function AQVBreakdown({ report }: AQVBreakdownProps) {
   return (
-    <Card>
-      <CardHeader className="pb-4">
+    <Card className="print-avoid-break">
+      <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-xl">AQV™ Component Breakdown</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              Weighted composite of audience quality signals
-            </p>
+            <CardTitle className="text-lg font-semibold">AQV™ Breakdown</CardTitle>
+            <p className="text-xs text-muted-foreground">Weighted audience quality composite</p>
           </div>
           <div className="text-right">
-            <div className="text-5xl font-bold tabular-nums tracking-tight">{report.aqvScore}</div>
-            <p className="text-xs text-muted-foreground mt-1">Composite Score</p>
+            <div className="text-4xl font-bold tabular-nums tracking-tight">{report.aqvScore}</div>
+            <p className="text-[10px] text-muted-foreground">Composite</p>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-8">
-        {/* Why This Matters */}
-        <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Why This Matters</p>
-          <p className="text-sm">
-            AQV™ quantifies creator value for brand partnerships by measuring what sponsors actually pay for: 
-            engaged audiences, consistent viewership, monetization efficiency, and brand safety. 
-            Use this score as the primary filter for partnership decisions.
-          </p>
-        </div>
-
+      <CardContent className="space-y-6">
         {/* Component Cards */}
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-3">
           {report.aqvComponents.map((component) => {
             const scoreInfo = getScoreLabel(component.score)
             return (
-              <div key={component.name} className="bg-muted/30 rounded-lg p-5">
-                <div className="flex items-start justify-between mb-4">
+              <div key={component.name} className="bg-muted/30 rounded-lg p-4 print-avoid-break">
+                <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h4 className="font-medium">{component.name}</h4>
-                    <p className="text-xs text-muted-foreground mt-0.5">Weight: {component.weight}%</p>
+                    <h4 className="text-sm font-medium">{component.name}</h4>
+                    <p className="text-[10px] text-muted-foreground">Weight: {component.weight}%</p>
                   </div>
                   <div className="text-right">
-                    <span className={`text-3xl font-bold tabular-nums ${getScoreColor(component.score)}`}>
+                    <span className={`text-2xl font-bold tabular-nums ${getScoreColor(component.score)}`}>
                       {component.score}
                     </span>
-                    <div className="mt-1">
-                      <Badge variant={scoreInfo.variant} className="text-xs">{scoreInfo.label}</Badge>
+                    <div className="mt-0.5">
+                      <Badge variant={scoreInfo.variant} className="text-[10px] px-1.5 py-0">{scoreInfo.label}</Badge>
                     </div>
                   </div>
                 </div>
                 
-                {/* Progress Bar */}
-                <div className="h-2 bg-muted rounded-full overflow-hidden mb-3">
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden mb-2">
                   <div 
-                    className={`h-full rounded-full transition-all ${
+                    className={`h-full rounded-full ${
                       component.score >= 80 ? 'bg-emerald-500' : 
                       component.score >= 60 ? 'bg-primary' : 
                       'bg-amber-500'
@@ -80,36 +67,36 @@ export function AQVBreakdown({ report }: AQVBreakdownProps) {
                   />
                 </div>
                 
-                <p className="text-sm text-muted-foreground">{component.interpretation}</p>
+                <p className="text-[11px] text-muted-foreground">{component.interpretation}</p>
               </div>
             )
           })}
         </div>
 
-        {/* Weighted Contribution Table */}
-        <div className="pt-4 border-t">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Score Contribution</h3>
-          <div className="bg-muted/30 rounded-lg overflow-hidden">
+        {/* Score Contribution */}
+        <div className="pt-4 border-t print-avoid-break">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Score Contribution</p>
+          <div className="bg-muted/30 rounded-lg overflow-hidden text-xs">
             {report.aqvComponents.map((component, index) => {
               const contribution = (component.score * component.weight / 100).toFixed(1)
               return (
                 <div 
                   key={component.name} 
-                  className={`flex items-center justify-between py-3 px-4 ${
+                  className={`flex items-center justify-between py-2 px-3 ${
                     index !== report.aqvComponents.length - 1 ? 'border-b border-border/50' : ''
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium w-44">{component.name}</span>
-                    <span className="text-sm text-muted-foreground">{component.score} × {component.weight}%</span>
+                  <div className="flex items-center gap-3">
+                    <span className="font-medium w-40">{component.name}</span>
+                    <span className="text-muted-foreground">{component.score} × {component.weight}%</span>
                   </div>
-                  <span className="text-sm font-medium tabular-nums">+{contribution}</span>
+                  <span className="font-medium tabular-nums">+{contribution}</span>
                 </div>
               )
             })}
-            <div className="flex items-center justify-between py-3 px-4 bg-muted/50 border-t">
-              <span className="text-sm font-semibold">Total AQV™ Score</span>
-              <span className="text-lg font-bold tabular-nums">{report.aqvScore}</span>
+            <div className="flex items-center justify-between py-2 px-3 bg-muted/50 border-t font-semibold">
+              <span>Total</span>
+              <span className="tabular-nums">{report.aqvScore}</span>
             </div>
           </div>
         </div>

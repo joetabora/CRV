@@ -24,112 +24,85 @@ export function ExecutiveSnapshot({ report }: ExecutiveSnapshotProps) {
   const monetizationStatus = getMonetizationReadiness(report.efficiencyRating)
 
   return (
-    <Card>
-      <CardHeader className="pb-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle className="text-xl">Executive Snapshot</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              {report.creator.name} · {report.creator.handle} · {report.creator.category}
-            </p>
-          </div>
-        </div>
+    <Card className="print-avoid-break">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg font-semibold">Executive Snapshot</CardTitle>
+        <p className="text-xs text-muted-foreground">
+          {report.creator.name} · {report.creator.handle} · {report.creator.category}
+        </p>
       </CardHeader>
       
-      <CardContent className="space-y-8">
-        {/* KPI Cards Grid - Elevated */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <CardContent className="space-y-6">
+        {/* KPI Cards Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           {/* AQV Score */}
-          <div className="bg-muted/50 rounded-lg p-5 min-h-[140px] flex flex-col">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">AQV™ Score</p>
-            <div className="flex-1 flex items-center">
-              <div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-5xl font-bold tabular-nums tracking-tight">{report.aqvScore}</span>
-                  <span className="text-lg text-muted-foreground">/100</span>
-                </div>
-                <div className="flex items-center gap-2 mt-3">
-                  <Badge variant="secondary">{aqvTier.label}</Badge>
-                  <span className="text-xs text-muted-foreground">{aqvTier.percentile}</span>
-                </div>
-              </div>
+          <div className="bg-muted/50 rounded-lg p-4">
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">AQV™ Score</p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-4xl font-bold tabular-nums tracking-tight">{report.aqvScore}</span>
+              <span className="text-sm text-muted-foreground">/100</span>
+            </div>
+            <div className="flex items-center gap-1.5 mt-2">
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{aqvTier.label}</Badge>
+              <span className="text-[10px] text-muted-foreground">{aqvTier.percentile}</span>
             </div>
           </div>
 
           {/* Audience Tier */}
-          <div className="bg-muted/50 rounded-lg p-5 min-h-[140px] flex flex-col">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Audience Tier</p>
-            <div className="flex-1 flex items-center">
-              <div>
-                <span className="text-5xl font-bold tracking-tight">{report.audienceTier.split(' ')[1]}</span>
-                <p className="text-xs text-muted-foreground mt-3">Engaged mid-core segment</p>
-              </div>
-            </div>
+          <div className="bg-muted/50 rounded-lg p-4">
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Audience Tier</p>
+            <span className="text-4xl font-bold tracking-tight">{report.audienceTier.split(' ')[1]}</span>
+            <p className="text-[10px] text-muted-foreground mt-2">Engaged mid-core</p>
           </div>
 
-          {/* Monetization Readiness */}
-          <div className="bg-muted/50 rounded-lg p-5 min-h-[140px] flex flex-col">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Monetization</p>
-            <div className="flex-1 flex items-center">
-              <div>
-                <span className="text-5xl font-bold tabular-nums tracking-tight">{report.efficiencyRating}</span>
-                <div className="mt-3">
-                  <Badge variant={monetizationStatus.variant}>{monetizationStatus.status}</Badge>
-                </div>
-              </div>
+          {/* Monetization */}
+          <div className="bg-muted/50 rounded-lg p-4">
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Monetization</p>
+            <span className="text-4xl font-bold tabular-nums tracking-tight">{report.efficiencyRating}</span>
+            <div className="mt-2">
+              <Badge variant={monetizationStatus.variant} className="text-[10px] px-1.5 py-0">{monetizationStatus.status}</Badge>
             </div>
           </div>
 
           {/* Brand Risk */}
-          <div className="bg-muted/50 rounded-lg p-5 min-h-[140px] flex flex-col">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Brand Risk</p>
-            <div className="flex-1 flex items-center">
-              <div>
-                <span className="text-5xl font-bold tracking-tight">{report.brandRisk}</span>
-                <div className="mt-3">
-                  <Badge variant={report.brandRisk === 'Low' ? 'success' : report.brandRisk === 'Medium' ? 'warning' : 'destructive'}>
-                    Score: {report.brandRiskScore}
-                  </Badge>
-                </div>
-              </div>
+          <div className="bg-muted/50 rounded-lg p-4">
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Brand Risk</p>
+            <span className="text-4xl font-bold tracking-tight">{report.brandRisk}</span>
+            <div className="mt-2">
+              <Badge variant={report.brandRisk === 'Low' ? 'success' : report.brandRisk === 'Medium' ? 'warning' : 'destructive'} className="text-[10px] px-1.5 py-0">
+                {report.brandRiskScore}
+              </Badge>
             </div>
           </div>
 
-          {/* Sponsorship Value */}
-          <div className="bg-muted/50 rounded-lg p-5 min-h-[140px] flex flex-col">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Est. Monthly Value</p>
-            <div className="flex-1 flex items-center">
-              <div>
-                <div className="flex items-baseline">
-                  <span className="text-lg text-muted-foreground">$</span>
-                  <span className="text-5xl font-bold tabular-nums tracking-tight">{(report.sponsorshipValue / 1000).toFixed(0)}K</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-3">
-                  Range: ${(report.sponsorshipValueLow / 1000).toFixed(0)}K–${(report.sponsorshipValueHigh / 1000).toFixed(0)}K
-                </p>
-              </div>
+          {/* Est. Value */}
+          <div className="bg-muted/50 rounded-lg p-4">
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Est. Monthly</p>
+            <div className="flex items-baseline">
+              <span className="text-sm text-muted-foreground">$</span>
+              <span className="text-4xl font-bold tabular-nums tracking-tight">{(report.sponsorshipValue / 1000).toFixed(0)}K</span>
             </div>
+            <p className="text-[10px] text-muted-foreground mt-2">
+              ${(report.sponsorshipValueLow / 1000).toFixed(0)}K–${(report.sponsorshipValueHigh / 1000).toFixed(0)}K range
+            </p>
           </div>
         </div>
 
-        {/* Executive Interpretation */}
-        <div className="grid lg:grid-cols-3 gap-6 pt-4 border-t">
+        {/* Interpretation + Signals */}
+        <div className="grid lg:grid-cols-3 gap-4 pt-4 border-t print-avoid-break">
           <div className="lg:col-span-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Executive Interpretation</h3>
-            <p className="text-sm leading-relaxed">
-              {report.creator.name} represents a <span className="font-medium">{aqvTier.label.toLowerCase()}-tier acquisition target</span> with 
-              demonstrated audience quality metrics in the {aqvTier.percentile.toLowerCase()} of comparable creators. 
-              Current monetization efficiency suggests <span className="font-medium">meaningful revenue upside</span> through 
-              optimized placement strategy. Brand safety profile supports premium partnership consideration.
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Interpretation</p>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              {aqvTier.label}-tier target with {aqvTier.percentile.toLowerCase()} audience quality. 
+              Monetization efficiency indicates revenue upside. Brand safety supports premium partnerships.
             </p>
           </div>
-
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Key Signals</h3>
-            <ul className="space-y-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Key Signals</p>
+            <ul className="space-y-1">
               {report.brandInsights.slice(0, 3).map((insight, i) => (
-                <li key={i} className="text-sm flex items-start gap-2">
-                  <span className="text-muted-foreground shrink-0">→</span>
+                <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                  <span className="shrink-0">→</span>
                   <span>{insight}</span>
                 </li>
               ))}
