@@ -3,7 +3,6 @@
 import { Report } from "@/lib/types"
 import { Header } from "@/components/layout/header"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Download, Printer } from "lucide-react"
 import { format } from "date-fns"
@@ -24,7 +23,7 @@ export function ReportView({ report }: ReportViewProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-muted/30 print:bg-white">
       {/* Navigation Header - hidden in print */}
       <div className="no-print">
         <Header />
@@ -32,7 +31,7 @@ export function ReportView({ report }: ReportViewProps) {
 
       {/* Report Header Bar */}
       <div className="border-b bg-background sticky top-0 z-40 no-print">
-        <div className="container max-w-5xl py-3 flex items-center justify-between">
+        <div className="container max-w-6xl py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
               <div className="flex items-center gap-2">
@@ -58,66 +57,55 @@ export function ReportView({ report }: ReportViewProps) {
       </div>
 
       {/* Report Content */}
-      <div className="container max-w-5xl py-8 print:py-6">
+      <div className="container max-w-6xl py-10 print:py-0 print:max-w-none">
         {/* Print Header - only visible in print */}
-        <div className="hidden print:block mb-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="hidden print:block mb-8 pb-6 border-b">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded bg-neutral-900 flex items-center justify-center">
-                <span className="text-white font-bold text-xs">CRV</span>
+              <div className="h-10 w-10 rounded bg-neutral-900 flex items-center justify-center">
+                <span className="text-white font-bold text-sm">CRV</span>
               </div>
               <div>
-                <p className="font-semibold">Creator Valuation Report</p>
-                <p className="text-xs text-muted-foreground">Confidential</p>
+                <p className="text-lg font-semibold">Creator Valuation Report</p>
+                <p className="text-sm text-muted-foreground">Confidential</p>
               </div>
             </div>
-            <div className="text-right text-sm">
-              <p className="font-medium">{report.creator.name}</p>
-              <p className="text-muted-foreground">{format(report.createdAt, 'MMMM d, yyyy')}</p>
+            <div className="text-right">
+              <p className="text-lg font-medium">{report.creator.name}</p>
+              <p className="text-sm text-muted-foreground">{format(report.createdAt, 'MMMM d, yyyy')}</p>
             </div>
           </div>
-          <Separator />
         </div>
 
-        {/* Sections */}
-        <div className="space-y-12 print:space-y-8">
+        {/* Sections with significant spacing */}
+        <div className="space-y-8 print:space-y-6">
           {/* Executive Snapshot */}
           <section className="print-avoid-break">
             <ExecutiveSnapshot report={report} />
           </section>
-
-          <Separator className="print:hidden" />
 
           {/* AQV Breakdown */}
           <section className="print-avoid-break">
             <AQVBreakdown report={report} />
           </section>
 
-          <Separator className="print:hidden" />
-
           {/* Monetization & Revenue Potential */}
           <section className="print-avoid-break">
             <MonetizationPotential report={report} />
           </section>
-
-          <Separator className="print:hidden" />
 
           {/* Peer Benchmarking */}
           <section className="print-avoid-break">
             <PeerBenchmarking report={report} />
           </section>
 
-          <Separator className="print:hidden" />
-
           {/* Actionable Recommendations */}
           <section className="print-avoid-break">
             <ActionableRecommendations report={report} />
           </section>
 
-          <Separator className="print:hidden" />
-
           {/* Methodology Appendix */}
-          <section className="print-break-before print:pt-8">
+          <section className="print-break-before">
             <MethodologyAppendix report={report} />
           </section>
         </div>
