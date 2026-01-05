@@ -1,6 +1,7 @@
 import { Report } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { getPlatformDisplayName } from "@/core/aqvAggregate"
 
 interface ExecutiveSnapshotProps {
   report: Report
@@ -46,6 +47,15 @@ export function ExecutiveSnapshot({ report }: ExecutiveSnapshotProps) {
               <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{aqvTier.label}</Badge>
               <span className="text-[10px] text-muted-foreground">{aqvTier.percentile}</span>
             </div>
+            {/* Platform Coverage */}
+            {report.platformAQVData && report.platformAQVData.length > 0 && (
+              <p className="text-[10px] text-muted-foreground mt-2">
+                Platform Coverage:{" "}
+                {report.platformAQVData
+                  .map((p) => getPlatformDisplayName(p.platform))
+                  .join(" • ")}
+              </p>
+            )}
           </div>
 
           {/* Audience Tier */}

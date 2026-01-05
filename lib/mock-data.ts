@@ -1,4 +1,30 @@
-import { Report, ReportSummary } from './types'
+import { Report, ReportSummary, PlatformAQV } from './types'
+import { aggregateAQV } from '@/core/aqvAggregate'
+
+// Mock platform-specific AQV data for StreamerPro (multi-platform creator)
+const mockPlatformAQVData: PlatformAQV[] = [
+  {
+    platform: 'twitch',
+    audienceQuality: 80,
+    engagementEfficiency: 85,
+    monetizationReadiness: 72,
+    growthSignal: 68,
+    brandRisk: 88,
+    confidence: 0.95,
+  },
+  {
+    platform: 'youtube',
+    audienceQuality: 75,
+    engagementEfficiency: 70,
+    monetizationReadiness: 82,
+    growthSignal: 72,
+    brandRisk: 90,
+    confidence: 0.85,
+  },
+]
+
+// Pre-compute aggregated AQV for mock data
+const mockAggregatedAQV = aggregateAQV(mockPlatformAQVData)
 
 export const mockReport: Report = {
   id: 'rpt_001',
@@ -190,6 +216,10 @@ export const mockReport: Report = {
   confidenceLevel: 'Moderate-High',
   dataCompleteness: 92,
   lastDataUpdate: new Date('2024-01-14'),
+  
+  // Cross-platform aggregation
+  platformAQVData: mockPlatformAQVData,
+  aggregatedAQV: mockAggregatedAQV,
 }
 
 export const mockReportsList: ReportSummary[] = [

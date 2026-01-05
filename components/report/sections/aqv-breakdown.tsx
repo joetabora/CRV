@@ -1,6 +1,7 @@
-import { Report } from "@/lib/types"
+import { Report, PlatformContribution } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { getPlatformDisplayName, getPlatformColor } from "@/core/aqvAggregate"
 
 interface AQVBreakdownProps {
   report: Report
@@ -16,6 +17,78 @@ function getScoreLabel(score: number): { label: string; variant: "success" | "se
   if (score >= 80) return { label: "Strong", variant: "success" }
   if (score >= 60) return { label: "Average", variant: "secondary" }
   return { label: "Below Avg", variant: "outline" }
+}
+
+function getDominantPlatform(contributions: PlatformContribution[]): PlatformContribution | null {
+  if (contributions.length === 0) return null
+  return contributions.reduce((max, c) => c.contributionPercent > max.contributionPercent ? c : max)
+}
+
+interface PlatformContributionBarProps {
+  contributions: PlatformContribution[]
+}
+
+function PlatformContributionBar({ contributions }: PlatformContributionBarProps) {
+  if (contributions.length === 0) return null
+  
+  const dominant = getDominantPlatform(contributions)
+  
+  return (
+    <div className="pt-4 border-t print-avoid-break">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+        Platform Contribution Analysis
+      </p>
+      
+      {/* Segmented Bar */}
+      <div className="h-8 rounded-lg overflow-hidden flex mb-3">
+        {contributions
+          .sort((a, b) => b.contributionPercent - a.contributionPercent)
+          .map((contribution) => (
+            <div
+              key={contribution.platform}
+              className="flex items-center justify-center relative group transition-all"
+              style={{
+                width: `${contribution.contributionPercent}%`,
+                backgroundColor: getPlatformColor(contribution.platform),
+                minWidth: contribution.contributionPercent > 5 ? 'auto' : '24px',
+              }}
+            >
+              {contribution.contributionPercent >= 15 && (
+                <span className="text-[11px] font-semibold text-white drop-shadow-sm">
+                  {getPlatformDisplayName(contribution.platform)}
+                </span>
+              )}
+            </div>
+          ))}
+      </div>
+      
+      {/* Legend */}
+      <div className="flex flex-wrap gap-4 mb-3">
+        {contributions
+          .sort((a, b) => b.contributionPercent - a.contributionPercent)
+          .map((contribution) => (
+            <div key={contribution.platform} className="flex items-center gap-2">
+              <div 
+                className="w-3 h-3 rounded-sm" 
+                style={{ backgroundColor: getPlatformColor(contribution.platform) }}
+              />
+              <span className="text-xs">
+                <span className="font-medium">{getPlatformDisplayName(contribution.platform)}</span>
+                <span className="text-muted-foreground ml-1">{contribution.contributionPercent.toFixed(1)}%</span>
+              </span>
+            </div>
+          ))}
+      </div>
+      
+      {/* Interpretation */}
+      {dominant && (
+        <p className="text-[11px] text-muted-foreground">
+          {getPlatformDisplayName(dominant.platform)} is the dominant platform, 
+          contributing {dominant.contributionPercent.toFixed(1)}% of the composite AQV score.
+        </p>
+      )}
+    </div>
+  )
 }
 
 export function AQVBreakdown({ report }: AQVBreakdownProps) {
@@ -72,6 +145,11 @@ export function AQVBreakdown({ report }: AQVBreakdownProps) {
             )
           })}
         </div>
+
+        {/* Platform Contribution (only if multi-platform data exists) */}
+        {report.aggregatedAQV && report.aggregatedAQV.platformContributions.length > 1 && (
+          <PlatformContributionBar contributions={report.aggregatedAQV.platformContributions} />
+        )}
 
         {/* Score Contribution */}
         <div className="pt-4 border-t print-avoid-break">

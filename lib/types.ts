@@ -1,8 +1,12 @@
+import type { PlatformAQV, AggregatedAQV, PlatformContribution, Platform } from '@/core/aqvAggregate'
+
+export type { PlatformAQV, AggregatedAQV, PlatformContribution, Platform }
+
 export interface Creator {
   id: string
   name: string
   handle: string
-  platform: 'twitch' | 'youtube' | 'tiktok'
+  platform: 'twitch' | 'youtube' | 'tiktok' | 'kick'
   category: string
   avatarUrl?: string
 }
@@ -89,6 +93,10 @@ export interface Report {
   confidenceLevel: 'High' | 'Moderate-High' | 'Moderate' | 'Low'
   dataCompleteness: number
   lastDataUpdate: Date
+  
+  // Cross-platform aggregation (optional, for multi-platform creators)
+  platformAQVData?: PlatformAQV[]
+  aggregatedAQV?: AggregatedAQV
 }
 
 export interface ReportSummary {
