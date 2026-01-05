@@ -15,23 +15,18 @@ export default function ReportPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    console.log('[ReportPage] Fetching report:', id)
-    
     // First try to get from store
     let fetchedReport = getReportById(id)
     
     // If not found in store but we have platform URLs in query params, regenerate
     if (!fetchedReport || !fetchedReport.platformAQVData || fetchedReport.platformAQVData.length === 0) {
       const platformsParam = searchParams.get('platforms')
-      console.log('[ReportPage] platformsParam from URL:', platformsParam)
       
       if (platformsParam) {
         const platformUrls = decodeURIComponent(platformsParam).split(',').filter(Boolean)
-        console.log('[ReportPage] Decoded platform URLs:', platformUrls)
         
         if (platformUrls.length > 0) {
           // Regenerate report with the platform URLs from query params
-          console.log('[ReportPage] Regenerating report with platforms:', platformUrls)
           fetchedReport = generateNewReport({
             primaryUrl: platformUrls[0],
             additionalUrls: platformUrls.slice(1),
@@ -40,12 +35,6 @@ export default function ReportPage() {
           fetchedReport = { ...fetchedReport, id }
         }
       }
-    }
-    
-    console.log('[ReportPage] Final report found:', !!fetchedReport)
-    if (fetchedReport) {
-      console.log('[ReportPage] platformAQVData:', fetchedReport.platformAQVData)
-      console.log('[ReportPage] platforms:', fetchedReport.platformAQVData?.map(p => p.platform))
     }
     
     setReport(fetchedReport)

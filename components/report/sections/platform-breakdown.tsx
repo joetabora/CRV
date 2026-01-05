@@ -472,17 +472,11 @@ function PlatformSectionRouter(props: BaseSectionProps) {
 // MAIN EXPORT
 // ============================================
 export function PlatformBreakdown({ report }: PlatformBreakdownProps) {
-  // Debug: Log platform data to verify what's being received
-  console.log('[PlatformBreakdown] platformAQVData:', report.platformAQVData)
-  console.log('[PlatformBreakdown] platforms:', report.platformAQVData?.map(p => p.platform))
-  
   if (!report.platformAQVData || report.platformAQVData.length === 0) {
-    console.log('[PlatformBreakdown] No platform data - returning null')
     return null
   }
 
   const isMultiPlatform = report.platformAQVData.length > 1
-  console.log('[PlatformBreakdown] isMultiPlatform:', isMultiPlatform)
   
   const contributionMap = new Map<Platform, number>()
   if (report.aggregatedAQV?.platformContributions) {

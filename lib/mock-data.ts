@@ -295,25 +295,17 @@ function detectPlatformFromUrl(url: string): Platform | undefined {
 }
 
 export function getReportById(id: string): Report | null {
-  console.log('[getReportById] Looking up:', id)
-  console.log('[getReportById] Store size:', generatedReportsStore.size)
-  console.log('[getReportById] Store keys:', Array.from(generatedReportsStore.keys()))
-  
   // Check generated reports store first
   if (generatedReportsStore.has(id)) {
-    const report = generatedReportsStore.get(id)!
-    console.log('[getReportById] Found in store, platforms:', report.platformAQVData?.map(p => p.platform))
-    return report
+    return generatedReportsStore.get(id)!
   }
   
   // rpt_001 is the demo report (single-platform Twitch)
   if (id === 'rpt_001') {
-    console.log('[getReportById] Returning demo report rpt_001')
     return mockReport
   }
   
   // For unknown IDs, return a single-platform (Twitch) report
-  console.log('[getReportById] Unknown ID, creating fallback Twitch report')
   const singlePlatformData = buildPlatformAQVData(['twitch'])
   const singlePlatformAggregated = singlePlatformData ? aggregateAQV(singlePlatformData) : undefined
   
@@ -345,30 +337,23 @@ export interface GenerateReportInput {
 export function generateNewReport(input: GenerateReportInput | string): Report {
   const newId = `rpt_${Date.now()}`
   
-  console.log('[generateNewReport] Input:', input)
-  
   // Handle legacy string input (single URL)
   const normalizedInput: GenerateReportInput = typeof input === 'string' 
     ? { primaryUrl: input, additionalUrls: [] }
     : input
   
-  console.log('[generateNewReport] Normalized input:', normalizedInput)
-  
   // Detect platforms from provided URLs only
   const detectedPlatforms: Platform[] = []
   
   const primaryPlatform = detectPlatformFromUrl(normalizedInput.primaryUrl)
-  console.log('[generateNewReport] Primary platform detected:', primaryPlatform)
   if (primaryPlatform) {
     detectedPlatforms.push(primaryPlatform)
   }
   
   // Add additional platforms if provided
   if (normalizedInput.additionalUrls && normalizedInput.additionalUrls.length > 0) {
-    console.log('[generateNewReport] Additional URLs:', normalizedInput.additionalUrls)
     for (const url of normalizedInput.additionalUrls) {
       const platform = detectPlatformFromUrl(url)
-      console.log('[generateNewReport] Additional platform detected:', platform, 'from', url)
       if (platform && !detectedPlatforms.includes(platform)) {
         detectedPlatforms.push(platform)
       }
@@ -379,12 +364,8 @@ export function generateNewReport(input: GenerateReportInput | string): Report {
   const platforms = detectedPlatforms.length > 0 ? detectedPlatforms : ['twitch'] as Platform[]
   const primaryCreatorPlatform = platforms[0]
   
-  console.log('[generateNewReport] Final platforms:', platforms)
-  
   // Build platform data ONLY for explicitly provided platforms
   const platformAQVData = buildPlatformAQVData(platforms)
-  console.log('[generateNewReport] Built platformAQVData:', platformAQVData?.map(p => p.platform))
-  
   const aggregatedAQV = platformAQVData ? aggregateAQV(platformAQVData) : undefined
   
   // Extract handle from URL
@@ -415,8 +396,6 @@ export function generateNewReport(input: GenerateReportInput | string): Report {
   
   // Store the report so it can be retrieved by getReportById
   generatedReportsStore.set(newId, report)
-  console.log('[generateNewReport] Stored report:', newId)
-  console.log('[generateNewReport] Store size now:', generatedReportsStore.size)
   
   return report
 }
