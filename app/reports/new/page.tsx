@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Header } from "@/components/layout/header"
 import { Loader2, Sparkles } from "lucide-react"
+import { generateNewReport } from "@/lib/mock-data"
 
 export default function NewReportPage() {
   const router = useRouter()
@@ -21,9 +22,11 @@ export default function NewReportPage() {
     // Simulate report generation delay
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    // In production, this would call an API to generate the report
-    // For now, redirect to a mock report
-    router.push("/reports/rpt_001")
+    // Generate report with ONLY the provided platform URL
+    const report = generateNewReport(creatorUrl)
+    
+    // Redirect to the generated report
+    router.push(`/reports/${report.id}`)
   }
 
   return (

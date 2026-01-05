@@ -54,9 +54,12 @@ function buildPlatformAQVData(platforms: Platform[]): PlatformAQV[] | undefined 
   return validPlatforms.map(p => PLATFORM_AQV_DATA[p])
 }
 
-// Mock data for the existing multi-platform creator (rpt_001)
-const mockMultiPlatformData = buildPlatformAQVData(['twitch', 'youtube'])!
-const mockMultiPlatformAggregated = aggregateAQV(mockMultiPlatformData)
+// Default single-platform data for base mock report
+const mockSinglePlatformData = buildPlatformAQVData(['twitch'])!
+const mockSinglePlatformAggregated = aggregateAQV(mockSinglePlatformData)
+
+// In-memory store for generated reports (persists during session)
+const generatedReportsStore: Map<string, Report> = new Map()
 
 export const mockReport: Report = {
   id: 'rpt_001',
@@ -249,9 +252,9 @@ export const mockReport: Report = {
   dataCompleteness: 92,
   lastDataUpdate: new Date('2024-01-14'),
   
-  // Cross-platform aggregation (this specific report has both Twitch + YouTube)
-  platformAQVData: mockMultiPlatformData,
-  aggregatedAQV: mockMultiPlatformAggregated,
+  // Platform data - single platform by default (Twitch only)
+  platformAQVData: mockSinglePlatformData,
+  aggregatedAQV: mockSinglePlatformAggregated,
 }
 
 export const mockReportsList: ReportSummary[] = [
@@ -292,12 +295,17 @@ function detectPlatformFromUrl(url: string): Platform | undefined {
 }
 
 export function getReportById(id: string): Report | null {
-  // rpt_001 is the demo multi-platform report
+  // Check generated reports store first
+  if (generatedReportsStore.has(id)) {
+    return generatedReportsStore.get(id)!
+  }
+  
+  // rpt_001 is the demo report (single-platform Twitch)
   if (id === 'rpt_001') {
     return mockReport
   }
   
-  // For other IDs, return a single-platform (Twitch) report
+  // For unknown IDs, return a single-platform (Twitch) report
   const singlePlatformData = buildPlatformAQVData(['twitch'])
   const singlePlatformAggregated = singlePlatformData ? aggregateAQV(singlePlatformData) : undefined
   
@@ -310,7 +318,6 @@ export function getReportById(id: string): Report | null {
       handle: `@creator_${id}`,
       platform: 'twitch',
     },
-    // Single platform only - no cross-platform data unless explicitly provided
     platformAQVData: singlePlatformData,
     aggregatedAQV: singlePlatformAggregated,
   }
@@ -366,7 +373,7 @@ export function generateNewReport(input: GenerateReportInput | string): Report {
     ? normalizedInput.primaryUrl 
     : `@${normalizedInput.primaryUrl.split('/').pop()}`
   
-  return {
+  const report: Report = {
     ...mockReport,
     id: newId,
     createdAt: new Date(),
@@ -386,5 +393,10 @@ export function generateNewReport(input: GenerateReportInput | string): Report {
     platformAQVData,
     aggregatedAQV,
   }
+  
+  // Store the report so it can be retrieved by getReportById
+  generatedReportsStore.set(newId, report)
+  
+  return report
 }
 
