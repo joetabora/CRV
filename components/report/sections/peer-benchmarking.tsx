@@ -2,7 +2,6 @@ import { Report } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { LockedSection } from "@/components/report/locked-section"
-import { Users } from "lucide-react"
 
 interface PeerBenchmarkingProps {
   report: Report
@@ -22,7 +21,12 @@ export function PeerBenchmarking({ report }: PeerBenchmarkingProps) {
         title="Peer Benchmarking"
         description="Compare this creator against a curated cohort of similar creators. See percentile rankings, metric differentials, and positioning analysis."
         reportId={report.id}
-        icon={<Users className="h-6 w-6 text-muted-foreground" />}
+        features={[
+          "Percentile ranking vs similar creators",
+          "Metric-by-metric peer comparison",
+          "Visual positioning against cohort median",
+          "Identify competitive advantages",
+        ]}
       />
     )
   }

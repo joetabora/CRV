@@ -1,10 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import { Report } from "@/lib/types"
 import { Header } from "@/components/layout/header"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Download, Printer, Lock, Crown } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Download, Printer, Lock, Crown, Sparkles, Loader2, Check } from "lucide-react"
 import { format } from "date-fns"
 import { ExecutiveSnapshot } from "./sections/executive-snapshot"
 import { PlatformContribution } from "./sections/platform-contribution"
@@ -19,16 +21,41 @@ interface ReportViewProps {
   report: Report
 }
 
+const PRO_FEATURES = [
+  "YouTube & multi-platform analysis",
+  "Platform contribution breakdown",
+  "Peer benchmarking vs cohort",
+  "PDF export for sharing",
+]
+
 export function ReportView({ report }: ReportViewProps) {
   const isPro = report.accessLevel === 'pro'
+  const [isUpgrading, setIsUpgrading] = useState(false)
 
   const handlePrint = () => {
     if (!isPro) {
-      // Free users can't export
-      alert('PDF export is a Pro feature. Upgrade to unlock.')
+      handleUpgrade()
       return
     }
     window.print()
+  }
+
+  const handleUpgrade = async () => {
+    setIsUpgrading(true)
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reportId: report.id }),
+      })
+      const data = await response.json()
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (error) {
+      console.error('Checkout error:', error)
+      setIsUpgrading(false)
+    }
   }
 
   return (
@@ -38,6 +65,38 @@ export function ReportView({ report }: ReportViewProps) {
         <Header />
       </div>
 
+      {/* Pro Upgrade Banner for Free Users */}
+      {!isPro && (
+        <div className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white no-print">
+          <div className="container max-w-5xl py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Unlock the full report</p>
+                <p className="text-xs text-white/80">Get YouTube analysis, peer benchmarking & PDF export</p>
+              </div>
+            </div>
+            <Button 
+              onClick={handleUpgrade}
+              disabled={isUpgrading}
+              className="bg-white text-violet-700 hover:bg-white/90 font-semibold"
+              size="sm"
+            >
+              {isUpgrading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>Upgrade to Pro – $29</>
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Report Bar */}
       <div className="border-b bg-background sticky top-0 z-40 no-print">
         <div className="container max-w-5xl py-3 flex items-center justify-between">
@@ -46,7 +105,7 @@ export function ReportView({ report }: ReportViewProps) {
               <h1 className="font-semibold">{report.creator.name}</h1>
               <Badge variant="outline" className="font-normal text-xs">{report.creator.platform}</Badge>
               {isPro ? (
-                <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20">
+                <Badge className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
                   <Crown className="h-3 w-3 mr-1" />
                   Pro
                 </Badge>
@@ -57,19 +116,32 @@ export function ReportView({ report }: ReportViewProps) {
             <p className="text-xs text-muted-foreground">{format(report.createdAt, 'MMM d, yyyy')}</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handlePrint} disabled={!isPro}>
-              <Printer className="h-3.5 w-3.5 mr-1.5" />
-              Print
-            </Button>
-            <Button size="sm" onClick={handlePrint} disabled={!isPro}>
-              {isPro ? (
-                <Download className="h-3.5 w-3.5 mr-1.5" />
-              ) : (
-                <Lock className="h-3.5 w-3.5 mr-1.5" />
-              )}
-              PDF
-              {!isPro && <span className="ml-1 text-[10px] opacity-70">Pro</span>}
-            </Button>
+            {isPro ? (
+              <>
+                <Button variant="outline" size="sm" onClick={handlePrint}>
+                  <Printer className="h-3.5 w-3.5 mr-1.5" />
+                  Print
+                </Button>
+                <Button size="sm" onClick={handlePrint}>
+                  <Download className="h-3.5 w-3.5 mr-1.5" />
+                  PDF
+                </Button>
+              </>
+            ) : (
+              <Button 
+                size="sm" 
+                onClick={handleUpgrade}
+                disabled={isUpgrading}
+                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+              >
+                {isUpgrading ? (
+                  <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                )}
+                Upgrade to Pro
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -104,6 +176,56 @@ export function ReportView({ report }: ReportViewProps) {
           <ActionableRecommendations report={report} />
           <MethodologyAppendix report={report} />
         </div>
+
+        {/* Bottom Upgrade CTA for Free Users */}
+        {!isPro && (
+          <Card className="mt-8 border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-indigo-50 no-print">
+            <CardContent className="py-8">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="flex-1 text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-medium mb-3">
+                    <Sparkles className="h-3 w-3" />
+                    Pro Report
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Unlock the Complete Analysis</h3>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    Get the full picture with cross-platform insights, peer comparisons, and exportable reports.
+                  </p>
+                  <ul className="space-y-2 mb-6">
+                    {PRO_FEATURES.map((feature) => (
+                      <li key={feature} className="flex items-center gap-2 text-sm">
+                        <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex flex-col items-center gap-3">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold">$29</p>
+                    <p className="text-xs text-muted-foreground">one-time payment</p>
+                  </div>
+                  <Button 
+                    onClick={handleUpgrade}
+                    disabled={isUpgrading}
+                    size="lg"
+                    className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 font-semibold px-8"
+                  >
+                    {isUpgrading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Loading...
+                      </>
+                    ) : (
+                      <>Upgrade Now</>
+                    )}
+                  </Button>
+                  <p className="text-[10px] text-muted-foreground">Secure payment via Stripe</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Footer */}
         <footer className="mt-8 pt-4 border-t text-[10px] text-muted-foreground flex justify-between print:mt-6">

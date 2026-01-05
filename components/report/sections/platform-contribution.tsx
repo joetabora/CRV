@@ -34,6 +34,12 @@ export function PlatformContribution({ report }: PlatformContributionProps) {
         title="Platform Contribution Analysis"
         description="See how each platform contributes to the composite AQV score with weighted breakdowns and visual analysis."
         reportId={report.id}
+        features={[
+          "Visual contribution breakdown by platform",
+          "Weighted influence on composite score",
+          "Confidence-adjusted platform metrics",
+          "Identify dominant revenue channels",
+        ]}
       />
     )
   }
