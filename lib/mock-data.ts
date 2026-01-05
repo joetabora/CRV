@@ -1,9 +1,9 @@
-import { Report, ReportSummary, PlatformAQV } from './types'
+import { Report, ReportSummary, PlatformAQV, Platform } from './types'
 import { aggregateAQV } from '@/core/aqvAggregate'
 
-// Mock platform-specific AQV data for StreamerPro (multi-platform creator)
-const mockPlatformAQVData: PlatformAQV[] = [
-  {
+// Individual platform mock data - used to construct reports based on provided platforms
+const PLATFORM_AQV_DATA: Record<Platform, PlatformAQV> = {
+  twitch: {
     platform: 'twitch',
     audienceQuality: 80,
     engagementEfficiency: 85,
@@ -12,7 +12,7 @@ const mockPlatformAQVData: PlatformAQV[] = [
     brandRisk: 88,
     confidence: 0.95,
   },
-  {
+  youtube: {
     platform: 'youtube',
     audienceQuality: 75,
     engagementEfficiency: 70,
@@ -21,10 +21,42 @@ const mockPlatformAQVData: PlatformAQV[] = [
     brandRisk: 90,
     confidence: 0.85,
   },
-]
+  tiktok: {
+    platform: 'tiktok',
+    audienceQuality: 70,
+    engagementEfficiency: 78,
+    monetizationReadiness: 65,
+    growthSignal: 82,
+    brandRisk: 75,
+    confidence: 0.80,
+  },
+  kick: {
+    platform: 'kick',
+    audienceQuality: 65,
+    engagementEfficiency: 72,
+    monetizationReadiness: 58,
+    growthSignal: 70,
+    brandRisk: 68,
+    confidence: 0.70,
+  },
+}
 
-// Pre-compute aggregated AQV for mock data
-const mockAggregatedAQV = aggregateAQV(mockPlatformAQVData)
+/**
+ * Builds platform AQV data array for only the specified platforms.
+ * Returns undefined if no valid platforms provided.
+ */
+function buildPlatformAQVData(platforms: Platform[]): PlatformAQV[] | undefined {
+  if (!platforms || platforms.length === 0) return undefined
+  
+  const validPlatforms = platforms.filter(p => p in PLATFORM_AQV_DATA)
+  if (validPlatforms.length === 0) return undefined
+  
+  return validPlatforms.map(p => PLATFORM_AQV_DATA[p])
+}
+
+// Mock data for the existing multi-platform creator (rpt_001)
+const mockMultiPlatformData = buildPlatformAQVData(['twitch', 'youtube'])!
+const mockMultiPlatformAggregated = aggregateAQV(mockMultiPlatformData)
 
 export const mockReport: Report = {
   id: 'rpt_001',
@@ -217,9 +249,9 @@ export const mockReport: Report = {
   dataCompleteness: 92,
   lastDataUpdate: new Date('2024-01-14'),
   
-  // Cross-platform aggregation
-  platformAQVData: mockPlatformAQVData,
-  aggregatedAQV: mockAggregatedAQV,
+  // Cross-platform aggregation (this specific report has both Twitch + YouTube)
+  platformAQVData: mockMultiPlatformData,
+  aggregatedAQV: mockMultiPlatformAggregated,
 }
 
 export const mockReportsList: ReportSummary[] = [
@@ -246,11 +278,29 @@ export const mockReportsList: ReportSummary[] = [
   },
 ]
 
+/**
+ * Detects platform from URL or identifier string.
+ * Returns the detected platform or undefined if not recognized.
+ */
+function detectPlatformFromUrl(url: string): Platform | undefined {
+  const lowered = url.toLowerCase()
+  if (lowered.includes('twitch.tv') || lowered.includes('twitch')) return 'twitch'
+  if (lowered.includes('youtube.com') || lowered.includes('youtu.be') || lowered.includes('youtube')) return 'youtube'
+  if (lowered.includes('tiktok.com') || lowered.includes('tiktok')) return 'tiktok'
+  if (lowered.includes('kick.com') || lowered.includes('kick')) return 'kick'
+  return undefined
+}
+
 export function getReportById(id: string): Report | null {
+  // rpt_001 is the demo multi-platform report
   if (id === 'rpt_001') {
     return mockReport
   }
-  // Return mock data for any ID for demo purposes
+  
+  // For other IDs, return a single-platform (Twitch) report
+  const singlePlatformData = buildPlatformAQVData(['twitch'])
+  const singlePlatformAggregated = singlePlatformData ? aggregateAQV(singlePlatformData) : undefined
+  
   return {
     ...mockReport,
     id,
@@ -258,12 +308,64 @@ export function getReportById(id: string): Report | null {
       ...mockReport.creator,
       name: `Creator ${id}`,
       handle: `@creator_${id}`,
+      platform: 'twitch',
     },
+    // Single platform only - no cross-platform data unless explicitly provided
+    platformAQVData: singlePlatformData,
+    aggregatedAQV: singlePlatformAggregated,
   }
 }
 
-export function generateNewReport(creatorUrl: string): Report {
+export interface GenerateReportInput {
+  /** Primary platform URL or identifier (required) */
+  primaryUrl: string
+  /** Additional platform URLs (optional, for multi-platform reports) */
+  additionalUrls?: string[]
+}
+
+/**
+ * Generates a new report based on provided platform URLs.
+ * ONLY includes platforms that are explicitly provided.
+ */
+export function generateNewReport(input: GenerateReportInput | string): Report {
   const newId = `rpt_${Date.now()}`
+  
+  // Handle legacy string input (single URL)
+  const normalizedInput: GenerateReportInput = typeof input === 'string' 
+    ? { primaryUrl: input, additionalUrls: [] }
+    : input
+  
+  // Detect platforms from provided URLs only
+  const detectedPlatforms: Platform[] = []
+  
+  const primaryPlatform = detectPlatformFromUrl(normalizedInput.primaryUrl)
+  if (primaryPlatform) {
+    detectedPlatforms.push(primaryPlatform)
+  }
+  
+  // Add additional platforms if provided
+  if (normalizedInput.additionalUrls) {
+    for (const url of normalizedInput.additionalUrls) {
+      const platform = detectPlatformFromUrl(url)
+      if (platform && !detectedPlatforms.includes(platform)) {
+        detectedPlatforms.push(platform)
+      }
+    }
+  }
+  
+  // Default to twitch if no platform detected
+  const platforms = detectedPlatforms.length > 0 ? detectedPlatforms : ['twitch'] as Platform[]
+  const primaryCreatorPlatform = platforms[0]
+  
+  // Build platform data ONLY for explicitly provided platforms
+  const platformAQVData = buildPlatformAQVData(platforms)
+  const aggregatedAQV = platformAQVData ? aggregateAQV(platformAQVData) : undefined
+  
+  // Extract handle from URL
+  const handle = normalizedInput.primaryUrl.includes('@') 
+    ? normalizedInput.primaryUrl 
+    : `@${normalizedInput.primaryUrl.split('/').pop()}`
+  
   return {
     ...mockReport,
     id: newId,
@@ -273,8 +375,16 @@ export function generateNewReport(creatorUrl: string): Report {
       ...mockReport.creator,
       id: `cr_${Date.now()}`,
       name: 'New Creator',
-      handle: creatorUrl.includes('@') ? creatorUrl : `@${creatorUrl.split('/').pop()}`,
+      handle,
+      platform: primaryCreatorPlatform,
     },
+    peerCohort: {
+      ...mockReport.peerCohort,
+      platform: primaryCreatorPlatform.charAt(0).toUpperCase() + primaryCreatorPlatform.slice(1),
+    },
+    // ONLY include platforms that were explicitly provided
+    platformAQVData,
+    aggregatedAQV,
   }
 }
 
