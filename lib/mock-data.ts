@@ -408,3 +408,24 @@ export function generateNewReport(input: GenerateReportInput | string): Report {
   return report
 }
 
+/**
+ * Upgrades a report to Pro access level.
+ * Called after successful Stripe payment.
+ */
+export function upgradeReportToPro(reportId: string): Report | null {
+  // Check if report exists in store
+  if (generatedReportsStore.has(reportId)) {
+    const report = generatedReportsStore.get(reportId)!
+    const upgradedReport: Report = {
+      ...report,
+      accessLevel: 'pro',
+    }
+    generatedReportsStore.set(reportId, upgradedReport)
+    return upgradedReport
+  }
+  
+  // For demo report, we can't persist the upgrade in memory across requests
+  // In production, this would update a database
+  return null
+}
+

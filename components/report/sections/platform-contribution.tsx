@@ -33,6 +33,7 @@ export function PlatformContribution({ report }: PlatformContributionProps) {
       <LockedSection
         title="Platform Contribution Analysis"
         description="See how each platform contributes to the composite AQV score with weighted breakdowns and visual analysis."
+        reportId={report.id}
       />
     )
   }

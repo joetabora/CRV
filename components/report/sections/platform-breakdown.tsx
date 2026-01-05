@@ -540,6 +540,7 @@ export function PlatformBreakdown({ report }: PlatformBreakdownProps) {
           key={platformData.platform}
           title={`${getPlatformDisplayName(platformData.platform)} Analysis`}
           description={`Unlock detailed ${getPlatformDisplayName(platformData.platform)} analytics including platform-specific metrics, AQV breakdown, and optimization recommendations.`}
+          reportId={report.id}
         />
       ))}
     </div>

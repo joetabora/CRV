@@ -21,6 +21,7 @@ export function PeerBenchmarking({ report }: PeerBenchmarkingProps) {
       <LockedSection
         title="Peer Benchmarking"
         description="Compare this creator against a curated cohort of similar creators. See percentile rankings, metric differentials, and positioning analysis."
+        reportId={report.id}
         icon={<Users className="h-6 w-6 text-muted-foreground" />}
       />
     )
