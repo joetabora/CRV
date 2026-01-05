@@ -29,8 +29,15 @@ export default function NewReportPage() {
       additionalUrls: youtubeUrl.trim() ? [youtubeUrl.trim()] : [],
     })
     
-    // Redirect to the generated report
-    router.push(`/reports/${report.id}`)
+    // Build query params for platforms (backup for cross-module issues)
+    const platforms = [twitchUrl.trim()]
+    if (youtubeUrl.trim()) {
+      platforms.push(youtubeUrl.trim())
+    }
+    const platformsParam = encodeURIComponent(platforms.join(','))
+    
+    // Redirect to the generated report with platform backup in URL
+    router.push(`/reports/${report.id}?platforms=${platformsParam}`)
   }
 
   return (
