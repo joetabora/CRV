@@ -376,10 +376,9 @@ export function generateNewReport(input: GenerateReportInput | string): Report {
     ? normalizedInput.primaryUrl 
     : `@${normalizedInput.primaryUrl.split('/').pop()}`
   
-  // Determine access level based on platforms
-  // Multi-platform (e.g., Twitch + YouTube) = Pro
-  // Single platform = Free
-  const accessLevel = platforms.length > 1 ? 'pro' : 'free' as const
+  // All reports default to Free
+  // Pro access is granted separately (e.g., by account tier, payment, or manual override)
+  const accessLevel = 'free' as const
   
   const report: Report = {
     ...mockReport,
