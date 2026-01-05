@@ -2,7 +2,8 @@
 
 import { Report } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getPlatformDisplayName, getPlatformColor, Platform } from "@/core/aqvAggregate"
+import { getPlatformDisplayName, getPlatformColor } from "@/core/aqvAggregate"
+import { LockedSection } from "@/components/report/locked-section"
 
 interface PlatformContributionProps {
   report: Report
@@ -15,6 +16,7 @@ interface PlatformContributionProps {
  * Shows a segmented bar visualization with platform labels and percentages.
  * 
  * Only renders when multiple platforms are present.
+ * PRO FEATURE: Gated for free users.
  */
 export function PlatformContribution({ report }: PlatformContributionProps) {
   // Only show for multi-platform reports
@@ -23,6 +25,16 @@ export function PlatformContribution({ report }: PlatformContributionProps) {
     report.aggregatedAQV.platformContributions.length < 2
   ) {
     return null
+  }
+
+  // Gate for Pro users only
+  if (report.accessLevel === 'free') {
+    return (
+      <LockedSection
+        title="Platform Contribution Analysis"
+        description="See how each platform contributes to the composite AQV score with weighted breakdowns and visual analysis."
+      />
+    )
   }
 
   const contributions = report.aggregatedAQV.platformContributions

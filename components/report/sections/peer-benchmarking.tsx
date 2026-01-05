@@ -1,6 +1,8 @@
 import { Report } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { LockedSection } from "@/components/report/locked-section"
+import { Users } from "lucide-react"
 
 interface PeerBenchmarkingProps {
   report: Report
@@ -13,6 +15,17 @@ function getPositionVerdict(percentile: number): { verdict: string; description:
 }
 
 export function PeerBenchmarking({ report }: PeerBenchmarkingProps) {
+  // Gate for Pro users only
+  if (report.accessLevel === 'free') {
+    return (
+      <LockedSection
+        title="Peer Benchmarking"
+        description="Compare this creator against a curated cohort of similar creators. See percentile rankings, metric differentials, and positioning analysis."
+        icon={<Users className="h-6 w-6 text-muted-foreground" />}
+      />
+    )
+  }
+
   const avgPercentile = Math.round(report.peerComparisons.reduce((sum, c) => sum + c.percentile, 0) / report.peerComparisons.length)
   const verdict = getPositionVerdict(avgPercentile)
 

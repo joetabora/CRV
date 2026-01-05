@@ -2,6 +2,7 @@ import { Report, PlatformAQV, Platform } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getPlatformDisplayName, getPlatformColor } from "@/core/aqvAggregate"
+import { LockedSection } from "@/components/report/locked-section"
 
 interface PlatformBreakdownProps {
   report: Report
@@ -476,6 +477,18 @@ export function PlatformBreakdown({ report }: PlatformBreakdownProps) {
     return null
   }
 
+  const isFreeUser = report.accessLevel === 'free'
+  
+  // For free users, only show Twitch; other platforms are gated
+  const visiblePlatforms = isFreeUser 
+    ? report.platformAQVData.filter(p => p.platform === 'twitch')
+    : report.platformAQVData
+  
+  // Platforms that are locked for free users
+  const lockedPlatforms = isFreeUser
+    ? report.platformAQVData.filter(p => p.platform !== 'twitch')
+    : []
+
   const isMultiPlatform = report.platformAQVData.length > 1
   
   const contributionMap = new Map<Platform, number>()
@@ -486,38 +499,49 @@ export function PlatformBreakdown({ report }: PlatformBreakdownProps) {
   }
 
   return (
-    <Card className="print-avoid-break">
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg font-semibold">Platform-Specific Analysis</CardTitle>
-            <p className="text-xs text-muted-foreground">
-              {isMultiPlatform 
-                ? `${report.platformAQVData.length} platforms analyzed independently`
-                : "Single platform analysis"
-              }
-            </p>
+    <div className="space-y-4">
+      <Card className="print-avoid-break">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-lg font-semibold">Platform-Specific Analysis</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                {isMultiPlatform 
+                  ? `${report.platformAQVData.length} platforms analyzed independently`
+                  : "Single platform analysis"
+                }
+              </p>
+            </div>
+            {isMultiPlatform && (
+              <Badge variant="secondary" className="text-[10px]">
+                Cross-Platform
+              </Badge>
+            )}
           </div>
-          {isMultiPlatform && (
-            <Badge variant="secondary" className="text-[10px]">
-              Cross-Platform
-            </Badge>
-          )}
-        </div>
-      </CardHeader>
-      
-      <CardContent>
-        <div className={`grid gap-4 ${isMultiPlatform ? 'md:grid-cols-2' : 'grid-cols-1'}`}>
-          {report.platformAQVData.map((platformData) => (
-            <PlatformSectionRouter
-              key={platformData.platform}
-              platformData={platformData}
-              contributionPercent={contributionMap.get(platformData.platform) ?? null}
-              isMultiPlatform={isMultiPlatform}
-            />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        
+        <CardContent>
+          <div className={`grid gap-4 ${isMultiPlatform && !isFreeUser ? 'md:grid-cols-2' : 'grid-cols-1'}`}>
+            {visiblePlatforms.map((platformData) => (
+              <PlatformSectionRouter
+                key={platformData.platform}
+                platformData={platformData}
+                contributionPercent={contributionMap.get(platformData.platform) ?? null}
+                isMultiPlatform={isMultiPlatform}
+              />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Show locked sections for non-Twitch platforms for free users */}
+      {lockedPlatforms.map((platformData) => (
+        <LockedSection
+          key={platformData.platform}
+          title={`${getPlatformDisplayName(platformData.platform)} Analysis`}
+          description={`Unlock detailed ${getPlatformDisplayName(platformData.platform)} analytics including platform-specific metrics, AQV breakdown, and optimization recommendations.`}
+        />
+      ))}
+    </div>
   )
 }

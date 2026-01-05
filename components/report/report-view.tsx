@@ -4,7 +4,7 @@ import { Report } from "@/lib/types"
 import { Header } from "@/components/layout/header"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Download, Printer } from "lucide-react"
+import { Download, Printer, Lock, Crown } from "lucide-react"
 import { format } from "date-fns"
 import { ExecutiveSnapshot } from "./sections/executive-snapshot"
 import { PlatformContribution } from "./sections/platform-contribution"
@@ -20,7 +20,14 @@ interface ReportViewProps {
 }
 
 export function ReportView({ report }: ReportViewProps) {
+  const isPro = report.accessLevel === 'pro'
+
   const handlePrint = () => {
+    if (!isPro) {
+      // Free users can't export
+      alert('PDF export is a Pro feature. Upgrade to unlock.')
+      return
+    }
     window.print()
   }
 
@@ -38,17 +45,30 @@ export function ReportView({ report }: ReportViewProps) {
             <div className="flex items-center gap-2">
               <h1 className="font-semibold">{report.creator.name}</h1>
               <Badge variant="outline" className="font-normal text-xs">{report.creator.platform}</Badge>
+              {isPro ? (
+                <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20">
+                  <Crown className="h-3 w-3 mr-1" />
+                  Pro
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="text-[10px]">Free</Badge>
+              )}
             </div>
             <p className="text-xs text-muted-foreground">{format(report.createdAt, 'MMM d, yyyy')}</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handlePrint}>
+            <Button variant="outline" size="sm" onClick={handlePrint} disabled={!isPro}>
               <Printer className="h-3.5 w-3.5 mr-1.5" />
               Print
             </Button>
-            <Button size="sm" onClick={handlePrint}>
-              <Download className="h-3.5 w-3.5 mr-1.5" />
+            <Button size="sm" onClick={handlePrint} disabled={!isPro}>
+              {isPro ? (
+                <Download className="h-3.5 w-3.5 mr-1.5" />
+              ) : (
+                <Lock className="h-3.5 w-3.5 mr-1.5" />
+              )}
               PDF
+              {!isPro && <span className="ml-1 text-[10px] opacity-70">Pro</span>}
             </Button>
           </div>
         </div>

@@ -2,6 +2,9 @@ import type { PlatformAQV, AggregatedAQV, PlatformContribution, Platform } from 
 
 export type { PlatformAQV, AggregatedAQV, PlatformContribution, Platform }
 
+/** Access tier for report features */
+export type AccessLevel = 'free' | 'pro'
+
 export interface Creator {
   id: string
   name: string
@@ -47,6 +50,9 @@ export interface Report {
   createdAt: Date
   updatedAt: Date
   creator: Creator
+  
+  /** Access tier - determines which sections are visible */
+  accessLevel: AccessLevel
   
   // Executive Snapshot
   aqvScore: number

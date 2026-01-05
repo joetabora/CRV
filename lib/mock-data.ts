@@ -75,6 +75,9 @@ export const mockReport: Report = {
     avatarUrl: undefined,
   },
   
+  // Access level - default to free
+  accessLevel: 'free',
+  
   // Executive Snapshot
   aqvScore: 78,
   audienceTier: 'Tier B',
@@ -373,11 +376,17 @@ export function generateNewReport(input: GenerateReportInput | string): Report {
     ? normalizedInput.primaryUrl 
     : `@${normalizedInput.primaryUrl.split('/').pop()}`
   
+  // Determine access level based on platforms
+  // Multi-platform (e.g., Twitch + YouTube) = Pro
+  // Single platform = Free
+  const accessLevel = platforms.length > 1 ? 'pro' : 'free' as const
+  
   const report: Report = {
     ...mockReport,
     id: newId,
     createdAt: new Date(),
     updatedAt: new Date(),
+    accessLevel,
     creator: {
       ...mockReport.creator,
       id: `cr_${Date.now()}`,
