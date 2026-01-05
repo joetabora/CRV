@@ -13,7 +13,8 @@ import { generateNewReport } from "@/lib/mock-data"
 export default function NewReportPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [creatorUrl, setCreatorUrl] = useState("")
+  const [twitchUrl, setTwitchUrl] = useState("")
+  const [youtubeUrl, setYoutubeUrl] = useState("")
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -22,8 +23,11 @@ export default function NewReportPage() {
     // Simulate report generation delay
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    // Generate report with ONLY the provided platform URL
-    const report = generateNewReport(creatorUrl)
+    // Generate report with ONLY explicitly provided platform URLs
+    const report = generateNewReport({
+      primaryUrl: twitchUrl,
+      additionalUrls: youtubeUrl.trim() ? [youtubeUrl.trim()] : [],
+    })
     
     // Redirect to the generated report
     router.push(`/reports/${report.id}`)
@@ -54,19 +58,35 @@ export default function NewReportPage() {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="creatorUrl">Twitch URL or Username</Label>
+                  <Label htmlFor="twitchUrl">Twitch URL or Username</Label>
                   <Input
-                    id="creatorUrl"
-                    name="creatorUrl"
+                    id="twitchUrl"
+                    name="twitchUrl"
                     type="text"
                     placeholder="https://twitch.tv/username or @username"
-                    value={creatorUrl}
-                    onChange={(e) => setCreatorUrl(e.target.value)}
+                    value={twitchUrl}
+                    onChange={(e) => setTwitchUrl(e.target.value)}
                     required
                     className="text-base"
                   />
                   <p className="text-xs text-muted-foreground">
                     Enter the full URL or just the username (e.g., @streamerpro)
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="youtubeUrl">YouTube Channel URL (optional)</Label>
+                  <Input
+                    id="youtubeUrl"
+                    name="youtubeUrl"
+                    type="text"
+                    placeholder="https://youtube.com/@channel or https://youtube.com/channel/..."
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)}
+                    className="text-base"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Add YouTube to generate a cross-platform AQV report
                   </p>
                 </div>
 
@@ -78,10 +98,11 @@ export default function NewReportPage() {
                     <li>• Peer benchmarking and positioning</li>
                     <li>• Monetization opportunities</li>
                     <li>• Actionable recommendations</li>
+                    {youtubeUrl.trim() && <li>• Cross-platform contribution analysis</li>}
                   </ul>
                 </div>
 
-                <Button type="submit" className="w-full" disabled={isLoading || !creatorUrl}>
+                <Button type="submit" className="w-full" disabled={isLoading || !twitchUrl}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
