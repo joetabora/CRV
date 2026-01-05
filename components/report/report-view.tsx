@@ -8,6 +8,7 @@ import { Download, Printer } from "lucide-react"
 import { format } from "date-fns"
 import { ExecutiveSnapshot } from "./sections/executive-snapshot"
 import { AQVBreakdown } from "./sections/aqv-breakdown"
+import { PlatformBreakdown } from "./sections/platform-breakdown"
 import { MonetizationPotential } from "./sections/monetization-potential"
 import { PeerBenchmarking } from "./sections/peer-benchmarking"
 import { ActionableRecommendations } from "./sections/actionable-recommendations"
@@ -75,6 +76,7 @@ export function ReportView({ report }: ReportViewProps) {
         <div className="space-y-6 print:space-y-4">
           <ExecutiveSnapshot report={report} />
           <AQVBreakdown report={report} />
+          <PlatformBreakdown report={report} />
           <MonetizationPotential report={report} />
           <PeerBenchmarking report={report} />
           <ActionableRecommendations report={report} />
